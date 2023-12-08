@@ -1,0 +1,219 @@
+Future<String> makePostRequest(File imageFile) async {
+    GlobalController globalController = Get.find();
+
+    try {
+      var stream = new http.ByteStream(imageFile.openRead());
+      stream.cast();
+      var length = await imageFile.length();
+
+      String? authToken = await loadToken();
+
+      var uri = Uri.parse('https://lizmyresume.onrender.com/user/resume/createResume');
+      var request = new http.MultipartRequest('POST', uri);
+
+      request.headers['x-auth-token'] = '$authToken';
+      request.headers['Content-Type'] = 'application/json';
+
+      // Add text fields to the request
+      request.fields['name'] = globalController.name.value;
+      request.fields['interestedIn'] = globalController.interestedIn.value;
+      request.fields['tempId'] = globalController.tempId.value;
+      request.fields['gender'] = globalController.gender.value;
+      request.fields['bio'] = globalController.bio.value;
+      request.fields['summary'] = globalController.bio.value;
+      request.fields['dob'] = globalController.dob.value;
+      request.fields['jobTitle'] = globalController.jobTitle.value;
+      //
+      // // Upload lists of data
+      request.fields['education'] = json.encode(globalController
+          .educationDataList
+          .map((education) => education.toJson())
+          .toList());
+      request.fields['work'] = json.encode(globalController
+          .workExperienceDataList
+          .map((work) => work.toJson())
+          .toList());
+      request.fields['skillsAndLevel'] = json.encode(globalController
+          .skillDataList
+          .map((skills) => skills.toJson())
+          .toList());
+      request.fields['internShips'] = json.encode(globalController
+          .userInternshipDataList
+          .map((internship) => internship.toJson())
+          .toList());
+      request.fields['projects'] = json.encode(globalController.projectDataList
+          .map((project) => project.toJson())
+          .toList());
+      request.fields['knownLanguages'] = json.encode(globalController
+          .knowLanguageDataList
+          .map((language) => language.toJson())
+          .toList());
+      request.fields['certifications'] = json.encode(globalController
+          .certificationDataList
+          .map((certification) => certification.toJson())
+          .toList());
+      request.fields['awards'] = json.encode(globalController.awardDataList
+          .map((award) => award.toJson())
+          .toList());
+      request.fields['volunteerExperience'] = json.encode(globalController
+          .volunteerExperienceDataList
+          .map((volunteer) => volunteer.toJson())
+          .toList());
+      request.fields['areaOfInterest'] = json.encode(globalController
+          .areaOfInterestDataList
+          .map((interest) => interest.toJson())
+          .toList());
+      request.fields['references'] = json.encode(globalController
+          .referenceDataList
+          .map((reference) => reference.toJson())
+          .toList());
+
+      Address addressData = Address(
+        address: globalController.address.value,
+        city: globalController.city.value,
+        state: globalController.state.value,
+        postalCode: globalController.postalCode.value,
+        country: globalController.country.value,
+      );
+      String addressJson = json.encode(addressData.toJson());
+      request.fields['address'] = addressJson;
+
+      Contact contactData = Contact(
+        email: globalController.email.value,
+        phone: globalController.phone.value,
+      );
+      String contactJson = json.encode(contactData.toJson());
+      request.fields['contact'] = contactJson;
+
+      SocialLinks socialLinksData = SocialLinks(
+        linkedin: globalController.linkedin.value,
+        github: globalController.github.value,
+        portfolio: globalController.portfolio.value,
+      );
+      String socialLinksJson = json.encode(socialLinksData.toJson());
+      request.fields['socialLinks'] = socialLinksJson;
+
+      var multiport = new http.MultipartFile('profilePicture', stream, length);
+      request.files.add(multiport);
+
+      var reponse = await request.send();
+      if (reponse.statusCode == 201) {
+        return "Resume Created";
+      } else {
+        return "${reponse.statusCode}Failed";
+      }
+    } catch (error) {
+      // Handle the error here
+      return "An error occurred: $error";
+    }
+  }
+
+  Future<String> createResume(GlobalController globalController) async {
+    try {
+      String? authToken = await loadToken();
+      final apiUrl = Uri.parse('https://lizmyresume.onrender.com/user/resume/createResume');
+
+      final headers = {
+        'Content-Type': 'application/json',
+        'x-auth-token': '$authToken',
+      };
+
+      final userData = {
+          'name': globalController.name.value,
+          'summary': globalController.bio.value,
+          'dob': globalController.dob.value,
+          'gender': globalController.gender.value,
+          // Add other fields from your globalController as needed
+          'address': {
+            'address': globalController.address.value,
+            'city': globalController.city.value,
+            'state': globalController.state.value,
+            'postalCode': globalController.postalCode.value,
+            'country': globalController.country.value,
+          },
+          'contact': {
+            'email': globalController.email.value,
+            'phone': globalController.phone.value,
+          },
+          'socialLinks': {
+            'linkedin': globalController.linkedin.value,
+            'github': globalController.github.value,
+            'portfolio': globalController.portfolio.value,
+          },
+          // 'profilePicture': "https://images.unsplash.com/photo-1697574316241-bb05ae18a0ef?auto=format&fit=crop&q=80&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&w=1887",
+          'education': globalController.educationDataList.map((education) => education.toJson()).toList(),
+          'work': globalController.workExperienceDataList.map((work) => work.toJson()).toList(),
+          'skillsAndLevel': globalController.skillDataList.map((skills) => skills.toJson()).toList(),
+          'internShips': globalController.userInternshipDataList.map((internship) => internship.toJson()).toList(),
+          'projects': globalController.projectDataList.map((project) => project.toJson()).toList(),
+          'knownLanguages': globalController.knowLanguageDataList.map((project) => project.toJson()).toList(),
+          'certifications': globalController.certificationDataList.map((project) => project.toJson()).toList(),
+          'awards': globalController.awardDataList.map((project) => project.toJson()).toList(),
+          'volunteerExperience': globalController.volunteerExperienceDataList.map((project) => project.toJson()).toList(),
+          'areaOfInterest': globalController.areaOfInterestDataList.map((project) => project.toJson()).toList(),
+          'references': globalController.referenceDataList.map((project) => project.toJson()).toList(),
+          'interestedIn': globalController.interestedIn.value,
+          'jobTitle': globalController.jobTitle.value,
+          'tempId': globalController.tempId.value,
+          // Add other data lists as needed (e.g., knownLanguages, certifications, etc.)
+      };
+      final response = await http.post(
+        apiUrl,
+        headers: headers,
+        body: jsonEncode(userData),
+      );
+
+      if (response.statusCode == 201) {
+        return "Data Posted"; // Data posted successfully
+      } else {
+        print('HTTP Error: ${response.statusCode}');
+        return "${response.statusCode} ${response.body}"; // Data posting failed
+      }
+    } catch (error) {
+      print('Error: $error');
+      return "Error Occurred-$error"; // Data posting failed
+    }
+  }
+
+
+
+Future<void> uploadImage(File imageFile) async {
+    try {
+      var stream = new http.ByteStream(imageFile.openRead());
+      stream.cast();
+      var length = await imageFile.length();
+
+      // path of signup
+      var uri =
+      Uri.parse('https://notesapp-i6yf.onrender.com/user/auth/signUp');
+      var request = new http.MultipartRequest('POST', uri);
+
+      request.headers['Content-Type'] = 'application/json';
+
+      request.fields['name'] = nameController.text.trim().toString();
+      request.fields['email'] = emailController.text.trim().toString();
+      request.fields['password'] = passwordcontroller.text.trim().toString();
+
+      var multiport = new http.MultipartFile('profilePic', stream, length);
+
+      request.files.add(multiport);
+
+      var reponse = await request.send();
+
+      if (reponse.statusCode == 201) {
+        print("hello");
+        print(reponse.statusCode);
+        print(reponse);
+      } else {
+        print("hii");
+        print(reponse.statusCode);
+        print(reponse);
+        print(await reponse.stream.bytesToString());
+      }
+      //
+    } catch (e) {
+      print(e);
+      print("failed");
+    }
+  }
+

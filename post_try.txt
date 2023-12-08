@@ -1,0 +1,34 @@
+Future<void> _postData(File imageFile) async {
+    try {
+      var stream = new http.ByteStream(imageFile.openRead());
+      stream.cast();
+      var length = await imageFile.length();
+      var uri = Uri.parse('https://ocr-xj19.onrender.com/ocr/imageToQr');
+      var request = new http.MultipartRequest('POST', uri);
+      request.headers['Content-Type'] = 'application/json';
+      var multiport = http.MultipartFile('imageOcr', stream, length);
+      request.files.add(multiport);
+      var reponse = await request.send();
+
+      print(reponse.statusCode);
+      if (reponse.statusCode == 200) {
+
+        // Try to decode JSON
+        try {
+          var decodedJson = json.decode(responseBody);
+          print(decodedJson);
+        } catch (e) {
+          print('Error decoding JSON: $e');
+        }
+      
+        print('Response: ${reponse}');
+      } else {
+        // Handle errors
+        print(await reponse.stream.bytesToString());
+        print('Error: ${reponse.statusCode}');
+      }
+    } catch (e) {
+      // Handle exceptions
+      print('Exception: $e');
+    }
+  }

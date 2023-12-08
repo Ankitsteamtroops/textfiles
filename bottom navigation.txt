@@ -1,0 +1,77 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  int selectedIndex = 0;
+
+  void onItemTapped(int index) {
+    setState(() {
+      selectedIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Bottom Navigation Bar'),
+      ),
+      body: Center(
+        child: Text(
+          'Selected Index: $selectedIndex',
+          style: TextStyle(fontSize: 24),
+        ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: selectedIndex,
+        onTap: onItemTapped,
+        items: [
+          BottomNavigationBarItem(
+            icon: Container(
+              width: 50,
+              height: 50,
+              color: selectedIndex == 0 ? Colors.blue : Colors.black,
+              child: Icon(Icons.home),
+            ),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Container(
+              width: 50,
+              height: 50,
+              color: selectedIndex == 1 ? Colors.blue : Colors.black,
+              child: Icon(Icons.search),
+            ),
+            label: 'Search',
+          ),
+          BottomNavigationBarItem(
+            icon: Container(
+              width: 50,
+              height: 50,
+              color: selectedIndex == 2 ? Colors.blue : Colors.black,
+              child: Icon(Icons.person),
+            ),
+            label: 'Profile',
+          ),
+        ],
+      ),
+    );
+  }
+}

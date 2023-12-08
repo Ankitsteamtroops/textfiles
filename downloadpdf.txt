@@ -1,0 +1,29 @@
+Future<String> generatePdf(String content) async {
+    try {
+      final apiUrl = Uri.parse('https://whihtmltopdf.onrender.com/convertToPdf');
+      final headers = {
+        'Content-Type': 'application/json',
+      };
+
+      final userData = {
+        "htmlContent": content
+      };
+
+
+
+      final response = await http.post(
+        apiUrl,
+        headers: headers,
+        body: jsonEncode(userData),
+      );
+
+      if (response.statusCode == 200) {
+        return "${response.statusCode}, ${response.body}"; // Data posted successfully
+      } else {
+        return "HTTP error: ${response.statusCode} ${response.body}"; // Data posting failed
+      }
+    } catch (error) {
+      print('Error: $error');
+      return "Error Occurred-$error"; // Data posting failed
+    }
+  }

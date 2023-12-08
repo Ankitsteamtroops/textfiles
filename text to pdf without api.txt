@@ -1,0 +1,45 @@
+
+// conversion of text to pdf without api
+
+String? filePath;
+  Future<void> _convertToPdfAndSave() async {
+    String textToConvert = widget.textcontroller;
+
+    final pdf = pw.Document();
+    pdf.addPage(pw.Page(
+      build: (pw.Context context) {
+        return pw.Center(
+          child: pw.Text(textToConvert),
+        );
+      },
+    ));
+
+    Directory? directory = await getExternalStorageDirectory();
+    String directoryPath = directory!.path;
+
+    String fileName =
+        'converted_text_${DateTime.now().millisecondsSinceEpoch}.pdf';
+
+    filePath = '$directoryPath/$fileName';
+
+    File file = File(filePath!);
+    Uint8List pdfBytes = await pdf.save();
+    await file.writeAsBytes(pdfBytes);
+
+    if (filePath != null) {
+      File file = File(filePath!);
+      Uint8List pdfBytes = await pdf.save();
+
+      await file.writeAsBytes(pdfBytes);
+
+      print('PDF saved at: $filePath');
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => FileList(
+            filepath: filePath!,
+          ),
+        ),
+      );
+    }
+  }
